@@ -160,7 +160,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-950 text-slate-100 flex flex-col selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-[#070A11] text-slate-100 flex flex-col selection:bg-cyan-500 selection:text-black">
       {/* Top Header */}
       <Header
         state={snapshot}
@@ -172,36 +172,16 @@ export function App() {
       />
 
       {/* Main Content Dashboard */}
-      <main className="flex-1 p-6 max-w-[1720px] mx-auto w-full space-y-6">
-        {/* Top Metric Cards */}
+      <main className="flex-1 p-5 max-w-[1720px] mx-auto w-full space-y-5">
+        {/* Row 1: Top Metric Cards */}
         <MetricCards
           metrics={snapshot?.metrics ?? null}
           diagnostics={snapshot?.diagnostics ?? null}
         />
 
-        {/* Middle Row: Disaggregated Topology & Hostage Hunter */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-          <div className="xl:col-span-7">
-            <DisaggregatedTopology
-              nodes={snapshot?.nodes ?? {}}
-              onDefragNode={handleDefragNode}
-              selectedSeqId={selectedSeqId}
-              onSelectSeqId={setSelectedSeqId}
-            />
-          </div>
-          <div className="xl:col-span-5">
-            <HostageLeakHunter
-              diagnostics={snapshot?.diagnostics ?? null}
-              onReclaimSeq={handleReclaimSeq}
-              onReclaimAll={handleReclaimAll}
-              onSelectSeqId={setSelectedSeqId}
-            />
-          </div>
-        </div>
-
-        {/* Primary Core: Physical Block Heatmap Matrix + Logical Table Viewer */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-          {/* Left: 2D Block Heatmap Matrix */}
+        {/* Row 2 (Hero Core): Physical Block Heatmap Matrix + Logical Table Viewer */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+          {/* Left: 2D Block Heatmap Matrix (7 cols) */}
           <div className="xl:col-span-7">
             <BlockPoolHeatmap
               blocksByNode={snapshot?.blocks_by_node ?? {}}
@@ -211,7 +191,7 @@ export function App() {
             />
           </div>
 
-          {/* Right: Sequence-Centric Logical Block Tables */}
+          {/* Right: Sequence-Centric Logical Block Tables (5 cols) */}
           <div className="xl:col-span-5">
             <LogicalTableViewer
               sequences={snapshot?.sequences ?? {}}
@@ -222,8 +202,28 @@ export function App() {
           </div>
         </div>
 
-        {/* Bottom Row: Workload Scenarios & Live Event Log */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        {/* Row 3: Disaggregated Topology & Hostage Hunter (Balanced 6/6 Grid) */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+          <div className="xl:col-span-6">
+            <DisaggregatedTopology
+              nodes={snapshot?.nodes ?? {}}
+              onDefragNode={handleDefragNode}
+              selectedSeqId={selectedSeqId}
+              onSelectSeqId={setSelectedSeqId}
+            />
+          </div>
+          <div className="xl:col-span-6">
+            <HostageLeakHunter
+              diagnostics={snapshot?.diagnostics ?? null}
+              onReclaimSeq={handleReclaimSeq}
+              onReclaimAll={handleReclaimAll}
+              onSelectSeqId={setSelectedSeqId}
+            />
+          </div>
+        </div>
+
+        {/* Row 4: Workload Scenarios & Live Event Log */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
           <div className="xl:col-span-7">
             <ScenarioControls
               currentScenario={snapshot?.scenario ?? 'normal_traffic'}
