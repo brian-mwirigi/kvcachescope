@@ -4,48 +4,41 @@
 
 @layer base {
   body {
-    @apply bg-dark-950 text-slate-100 font-sans antialiased overflow-x-hidden;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(0, 242, 254, 0.03) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(138, 43, 226, 0.04) 0px, transparent 50%);
+    background-color: #09090b;
+    color: #e4e4e7;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 }
 
-/* Custom scrollbars */
+/* Precision scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #09090b;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #233054;
-  border-radius: 3px;
+  background: #27272a;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #344574;
+  background: #3f3f46;
 }
 
+/* Professional card styling - No garish glowing shadows */
 .cyber-card {
-  @apply bg-dark-900/90 border border-slate-800/80 rounded-xl backdrop-blur-md transition-all duration-200;
+  background-color: #121215;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  transition: border-color 0.15s ease;
 }
 
 .cyber-card:hover {
-  @apply border-slate-700/80 shadow-lg shadow-cyan-950/20;
-}
-
-.cyber-glow {
-  box-shadow: 0 0 20px -5px rgba(0, 242, 254, 0.25);
-}
-
-.cyber-glow-rose {
-  box-shadow: 0 0 20px -5px rgba(255, 8, 68, 0.3);
-}
-
-.cyber-glow-purple {
-  box-shadow: 0 0 20px -5px rgba(138, 43, 226, 0.3);
+  border-color: #3f3f46;
 }

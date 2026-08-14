@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Cpu, X } from 'lucide-react';
+import { Layers, X } from 'lucide-react';
 import type { Block, WorkerNodeState } from '../types';
 
 interface BlockPoolHeatmapProps {
@@ -26,11 +26,9 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
 
   // Filter blocks
   const filteredBlocks = activeBlocks.filter(b => {
-    // Filter by sequence
     if (selectedSeqId && !b.sequence_ids.includes(selectedSeqId)) {
       return false;
     }
-    // Filter by state
     if (filterState === 'ALL') return true;
     if (filterState === 'HOSTAGE') return b.state === 'HOSTAGE_ZOMBIE';
     if (filterState === 'SHARED') return b.state === 'PREFIX_SHARED' || b.ref_count > 1;
@@ -42,54 +40,53 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
 
   const getBlockStyle = (block: Block) => {
     if (block.state === 'HOSTAGE_ZOMBIE') {
-      return 'bg-rose-600/90 text-white border-rose-400 animate-pulse shadow-md shadow-rose-600/50';
+      return 'bg-rose-900/80 text-rose-100 border-rose-600 hover:bg-rose-800';
     }
     if (block.state === 'PREFIX_SHARED' || block.ref_count > 1) {
-      return 'bg-emerald-500/80 text-emerald-950 border-emerald-300 font-semibold shadow-sm shadow-emerald-500/30';
+      return 'bg-emerald-900/70 text-emerald-100 border-emerald-600 hover:bg-emerald-800';
     }
     if (block.state === 'ACTIVE') {
       if (block.slack_tokens > (block.capacity / 2)) {
-        // High slack
-        return 'bg-amber-500/70 text-amber-950 border-amber-300';
+        return 'bg-amber-950/80 text-amber-200 border-amber-600 hover:bg-amber-900';
       }
-      return 'bg-cyan-500/80 text-cyan-950 border-cyan-300';
+      return 'bg-cyan-950/80 text-cyan-200 border-cyan-700 hover:bg-cyan-900';
     }
     // FREE
-    return 'bg-slate-900/60 text-slate-600 border-slate-800 hover:border-slate-700';
+    return 'bg-[#151518] text-zinc-600 border-zinc-800/80 hover:border-zinc-700 hover:text-zinc-400';
   };
 
   return (
-    <div className="cyber-card p-5">
+    <div className="cyber-card p-4">
       {/* Header & Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-800 text-xs font-mono">
         <div className="flex items-center space-x-2">
-          <Layers className="w-5 h-5 text-cyan-400" />
-          <h2 className="text-base font-bold text-slate-100">
-            Physical GPU Block Pool Matrix
+          <Layers className="w-4 h-4 text-cyan-400" />
+          <h2 className="text-sm font-bold text-zinc-100">
+            Physical GPU Block Allocation Table
           </h2>
-          <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">
-            {filteredBlocks.length} Blocks Shown
+          <span className="text-[11px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+            {filteredBlocks.length} Blocks
           </span>
         </div>
 
         {/* Filters and Node Selectors */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Node Tab Selector */}
-          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-xs font-mono">
+          <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded p-0.5 text-xs">
             <button
               onClick={() => setSelectedNodeId('all')}
-              className={`px-2.5 py-1 rounded transition-colors ${
-                selectedNodeId === 'all' ? 'bg-cyan-500/20 text-cyan-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
+              className={`px-2 py-0.5 rounded transition-colors ${
+                selectedNodeId === 'all' ? 'bg-zinc-700 text-zinc-100 font-semibold' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              All Workers
+              All Nodes
             </button>
             {nodeKeys.map(nid => (
               <button
                 key={nid}
                 onClick={() => setSelectedNodeId(nid)}
-                className={`px-2.5 py-1 rounded transition-colors ${
-                  selectedNodeId === nid ? 'bg-cyan-500/20 text-cyan-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
+                className={`px-2 py-0.5 rounded transition-colors ${
+                  selectedNodeId === nid ? 'bg-zinc-700 text-zinc-100 font-semibold' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 {nodes[nid]?.name.split(' ')[0] || nid}
@@ -98,22 +95,22 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
           </div>
 
           {/* State Filter Buttons */}
-          <div className="flex items-center space-x-1 text-xs font-mono">
+          <div className="flex items-center space-x-1">
             {[
               { id: 'ALL', label: 'All' },
               { id: 'ACTIVE', label: 'Active', color: 'text-cyan-400' },
               { id: 'SHARED', label: 'Shared', color: 'text-emerald-400' },
               { id: 'HOSTAGE', label: 'Hostage', color: 'text-rose-400' },
-              { id: 'SLACK', label: 'High Slack', color: 'text-amber-400' },
-              { id: 'FREE', label: 'Free', color: 'text-slate-500' }
+              { id: 'SLACK', label: 'Slack', color: 'text-amber-400' },
+              { id: 'FREE', label: 'Free', color: 'text-zinc-500' }
             ].map(f => (
               <button
                 key={f.id}
                 onClick={() => setFilterState(f.id)}
-                className={`px-2 py-1 rounded border transition-colors ${
+                className={`px-2 py-0.5 rounded border transition-colors ${
                   filterState === f.id 
-                    ? 'bg-slate-800 border-slate-600 text-white font-semibold' 
-                    : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                    ? 'bg-zinc-750 border-zinc-600 text-white font-semibold' 
+                    : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
                 }`}
               >
                 <span className={f.color}>{f.label}</span>
@@ -125,7 +122,7 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
           {selectedSeqId && (
             <button
               onClick={() => onSelectSeqId(null)}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-rose-950/60 border border-rose-800/60 text-xs font-mono text-rose-300 hover:bg-rose-900/60"
+              className="flex items-center space-x-1 px-2 py-0.5 rounded bg-rose-950 border border-rose-800 text-rose-300 text-xs hover:bg-rose-900"
             >
               <span>Seq: {selectedSeqId}</span>
               <X className="w-3 h-3" />
@@ -135,48 +132,48 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center justify-between text-xs font-mono py-2.5 text-slate-400 gap-2 border-b border-slate-800/60">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-wrap items-center justify-between text-[11px] font-mono py-2 text-zinc-400 gap-2 border-b border-zinc-800/60">
+        <div className="flex items-center space-x-3.5">
           <div className="flex items-center space-x-1.5">
-            <span className="w-3 h-3 rounded bg-cyan-500/80 border border-cyan-300" />
-            <span>Active Block (16 tokens)</span>
+            <span className="w-2.5 h-2.5 rounded bg-cyan-950 border border-cyan-700" />
+            <span>Active (16 tok)</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-3 h-3 rounded bg-emerald-500/80 border border-emerald-300" />
-            <span>Prefix Shared (Ref &gt; 1)</span>
+            <span className="w-2.5 h-2.5 rounded bg-emerald-950 border border-emerald-700" />
+            <span>Prefix Shared</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-3 h-3 rounded bg-rose-600 border border-rose-400 animate-pulse" />
-            <span>Hostage / Zombie Leaked</span>
+            <span className="w-2.5 h-2.5 rounded bg-rose-950 border border-rose-700" />
+            <span>Hostage / Leaked</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-3 h-3 rounded bg-amber-500/70 border border-amber-300" />
-            <span>Tail Slack (&gt;50% empty)</span>
+            <span className="w-2.5 h-2.5 rounded bg-amber-950 border border-amber-700" />
+            <span>Tail Slack</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-3 h-3 rounded bg-slate-900 border border-slate-800" />
+            <span className="w-2.5 h-2.5 rounded bg-[#151518] border border-zinc-800" />
             <span>Free Queue</span>
           </div>
         </div>
-        <span className="text-[11px] text-slate-500">Click any block to inspect logical mapping</span>
+        <span className="text-[10px] text-zinc-500">Click any block to inspect virtual translation</span>
       </div>
 
       {/* 2D Block Matrix Grid */}
-      <div className="mt-4 grid grid-cols-8 sm:grid-cols-12 md:grid-cols-16 lg:grid-cols-24 xl:grid-cols-32 gap-1.5 max-h-[380px] overflow-y-auto p-2 rounded-lg bg-dark-950/80 border border-slate-800/80">
+      <div className="mt-3 grid grid-cols-8 sm:grid-cols-12 md:grid-cols-16 lg:grid-cols-24 xl:grid-cols-32 gap-1 max-h-[340px] overflow-y-auto p-1.5 rounded bg-[#0b0b0e] border border-zinc-800/80">
         {filteredBlocks.map((block) => {
           const isHighlighted = selectedSeqId && block.sequence_ids.includes(selectedSeqId);
           return (
             <button
               key={`${block.node_id}-${block.block_id}`}
               onClick={() => setActiveModalBlock(block)}
-              className={`h-7 rounded border flex flex-col items-center justify-center text-[10px] font-mono transition-all transform hover:scale-110 hover:z-20 relative ${getBlockStyle(block)} ${
-                isHighlighted ? 'ring-2 ring-white scale-105 z-10' : ''
+              className={`h-6 rounded border flex flex-col items-center justify-center text-[9px] font-mono transition-all relative ${getBlockStyle(block)} ${
+                isHighlighted ? 'ring-1 ring-white z-10 font-bold' : ''
               }`}
               title={`Block #${block.block_id} [${block.state}] - ${block.token_count}/${block.capacity} tokens`}
             >
               <span>{block.block_id}</span>
               {block.ref_count > 1 && (
-                <span className="absolute -top-1 -right-1 text-[8px] bg-emerald-900 text-emerald-200 px-1 rounded-full border border-emerald-400 font-bold">
+                <span className="absolute -top-1 -right-1 text-[7px] bg-emerald-950 text-emerald-300 px-0.5 rounded border border-emerald-600 font-bold">
                   {block.ref_count}
                 </span>
               )}
@@ -185,80 +182,74 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
         })}
       </div>
 
-      {/* Block Inspector Modal / Popover */}
+      {/* Block Inspector Modal */}
       {activeModalBlock && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="cyber-card p-6 max-w-md w-full border border-cyan-500/40 cyber-glow">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 font-mono">
+          <div className="bg-[#121215] border border-zinc-700 rounded-lg p-5 max-w-md w-full shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <div className="flex items-center space-x-2">
-                <Cpu className="w-5 h-5 text-cyan-400" />
-                <h3 className="text-lg font-bold font-mono text-slate-100">
-                  Block #{activeModalBlock.block_id} Telemetry
+                <h3 className="text-sm font-bold text-zinc-100">
+                  Block #{activeModalBlock.block_id} Inspection
                 </h3>
               </div>
               <button
                 onClick={() => setActiveModalBlock(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-zinc-400 hover:text-white"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="mt-4 space-y-3 text-xs font-mono">
-              <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                <span className="text-slate-400">Node / Device:</span>
-                <span className="text-cyan-300 font-semibold">{nodes[activeModalBlock.node_id]?.name || activeModalBlock.node_id}</span>
+            <div className="mt-3 space-y-2 text-xs">
+              <div className="flex justify-between py-1 border-b border-zinc-800/60">
+                <span className="text-zinc-400">Node:</span>
+                <span className="text-zinc-200 font-semibold">{nodes[activeModalBlock.node_id]?.name || activeModalBlock.node_id}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                <span className="text-slate-400">Lifecycle State:</span>
-                <span className={`px-2 py-0.5 rounded font-bold ${
-                  activeModalBlock.state === 'HOSTAGE_ZOMBIE' ? 'bg-rose-950 text-rose-400 border border-rose-800' :
-                  activeModalBlock.state === 'PREFIX_SHARED' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
-                  activeModalBlock.state === 'ACTIVE' ? 'bg-cyan-950 text-cyan-400 border border-cyan-800' : 'bg-slate-800 text-slate-400'
+              <div className="flex justify-between py-1 border-b border-zinc-800/60">
+                <span className="text-zinc-400">Lifecycle State:</span>
+                <span className={`px-1.5 py-0.2 rounded font-bold text-[11px] ${
+                  activeModalBlock.state === 'HOSTAGE_ZOMBIE' ? 'bg-rose-950 text-rose-300 border border-rose-800' :
+                  activeModalBlock.state === 'PREFIX_SHARED' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
+                  activeModalBlock.state === 'ACTIVE' ? 'bg-cyan-950 text-cyan-300 border border-cyan-800' : 'bg-zinc-800 text-zinc-400'
                 }`}>
                   {activeModalBlock.state}
                 </span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                <span className="text-slate-400">Token Fill / Capacity:</span>
-                <span className="text-slate-200">
+              <div className="flex justify-between py-1 border-b border-zinc-800/60">
+                <span className="text-zinc-400">Token Fill / Capacity:</span>
+                <span className="text-zinc-200">
                   {activeModalBlock.token_count} / {activeModalBlock.capacity} tokens 
-                  <span className="text-amber-400 ml-1.5">({activeModalBlock.slack_tokens} slack slots)</span>
+                  <span className="text-amber-400 ml-1">({activeModalBlock.slack_tokens} slack)</span>
                 </span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                <span className="text-slate-400">Reference Count:</span>
+              <div className="flex justify-between py-1 border-b border-zinc-800/60">
+                <span className="text-zinc-400">Reference Count:</span>
                 <span className="text-emerald-400 font-bold">{activeModalBlock.ref_count}</span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                <span className="text-slate-400">Prefix Hash (Radix):</span>
-                <span className="text-purple-300 font-mono">{activeModalBlock.prefix_hash || 'None (Tail Block)'}</span>
               </div>
 
               {/* 16-Token Physical Slot Allocation Visualizer */}
               <div className="pt-2">
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-slate-400">Physical Token Slots (16-token Block):</span>
-                  <span className="text-[10px] text-slate-400">
-                    {activeModalBlock.token_count} active / {activeModalBlock.slack_tokens} slack
+                <div className="flex justify-between items-center mb-1 text-[11px]">
+                  <span className="text-zinc-400">Physical Token Slots:</span>
+                  <span className="text-zinc-500">
+                    {activeModalBlock.token_count} filled / {activeModalBlock.slack_tokens} empty
                   </span>
                 </div>
-                <div className="grid grid-cols-8 gap-1 p-2 rounded-lg bg-dark-950 border border-slate-800">
+                <div className="grid grid-cols-8 gap-1 p-1.5 rounded bg-zinc-950 border border-zinc-800">
                   {Array.from({ length: activeModalBlock.capacity || 16 }).map((_, idx) => {
                     const isFilled = idx < activeModalBlock.token_count;
                     return (
                       <div
                         key={idx}
-                        className={`h-5 rounded flex items-center justify-center text-[9px] font-mono border ${
+                        className={`h-4 rounded flex items-center justify-center text-[8px] font-mono border ${
                           isFilled
                             ? activeModalBlock.state === 'HOSTAGE_ZOMBIE'
-                              ? 'bg-rose-600/60 border-rose-400 text-rose-100'
+                              ? 'bg-rose-950 border-rose-700 text-rose-200'
                               : activeModalBlock.state === 'PREFIX_SHARED'
-                              ? 'bg-emerald-600/60 border-emerald-400 text-emerald-100'
-                              : 'bg-cyan-600/60 border-cyan-400 text-cyan-100'
-                            : 'bg-slate-900 border-slate-800/80 text-slate-600'
+                              ? 'bg-emerald-950 border-emerald-700 text-emerald-200'
+                              : 'bg-cyan-950 border-cyan-700 text-cyan-200'
+                            : 'bg-zinc-900 border-zinc-800/60 text-zinc-600'
                         }`}
-                        title={`Slot #${idx}: ${isFilled ? 'Allocated Token' : 'Unused Slack Space'}`}
                       >
                         {idx}
                       </div>
@@ -268,10 +259,10 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
               </div>
 
               {/* Owning Sequences */}
-              <div className="pt-2">
-                <span className="text-slate-400 block mb-1.5">Owning Sequences:</span>
+              <div className="pt-1">
+                <span className="text-zinc-400 block mb-1 text-[11px]">Owning Sequences:</span>
                 {activeModalBlock.sequence_ids.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1">
                     {activeModalBlock.sequence_ids.map(sid => (
                       <button
                         key={sid}
@@ -279,35 +270,25 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
                           onSelectSeqId(sid);
                           setActiveModalBlock(null);
                         }}
-                        className="px-2 py-1 rounded bg-cyan-950/80 border border-cyan-800/80 text-cyan-300 text-[11px] hover:bg-cyan-900 hover:border-cyan-500 transition-colors"
+                        className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-cyan-300 text-[10px] hover:bg-zinc-700"
                       >
                         {sid} &rarr; Focus in Table
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-slate-500 italic">None (In Free Queue)</span>
+                  <span className="text-zinc-600 italic text-[11px]">None (In Free Queue)</span>
                 )}
               </div>
-
-              {/* Token Preview */}
-              {activeModalBlock.tokens_preview && (
-                <div className="pt-2">
-                  <span className="text-slate-400 block mb-1">Stored Tokens Preview:</span>
-                  <div className="p-2.5 rounded bg-slate-950 border border-slate-800 text-slate-300 text-[11px] font-mono select-all">
-                    "{activeModalBlock.tokens_preview}"
-                  </div>
-                </div>
-              )}
             </div>
 
-            <div className="mt-6 flex justify-between items-center">
-              <span className="text-[10px] text-slate-500 font-mono">Offset: 0x{((activeModalBlock.physical_id || activeModalBlock.block_id) * 320).toString(16).toUpperCase()}</span>
+            <div className="mt-4 flex justify-between items-center pt-2 border-t border-zinc-800">
+              <span className="text-[10px] text-zinc-500 font-mono">Offset: 0x{((activeModalBlock.physical_id || activeModalBlock.block_id) * 320).toString(16).toUpperCase()}</span>
               <button
                 onClick={() => setActiveModalBlock(null)}
-                className="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs font-mono transition-colors"
+                className="px-3 py-1 rounded bg-zinc-800 text-zinc-200 hover:bg-zinc-700 text-xs transition-colors"
               >
-                Close Inspector
+                Close
               </button>
             </div>
           </div>
