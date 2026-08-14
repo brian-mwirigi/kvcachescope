@@ -1,92 +1,148 @@
-# KVCacheScope 🔍⚡
-### Logical KV Cache Profiler & Failure Defense System for PagedAttention & Disaggregated LLM Inference
+# kvcachescope
 
-[![CI Regression Suite](https://github.com/vllm-project/kvcachescope/actions/workflows/ci.yml/badge.svg)](https://github.com/vllm-project/kvcachescope)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vllm-project/kvcachescope/blob/main/notebooks/KVCacheScope_Live_vLLM_Colab.ipynb)
-![PagedAttention](https://img.shields.io/badge/PagedAttention-vLLM%20%7C%20SGLang%20%7C%20TRT--LLM-cyan)
-![Platform](https://img.shields.io/badge/Architecture-Disaggregated%20Prefill%2FDecode-blue)
-![Diagnostics](https://img.shields.io/badge/StateDivergenceDetector-Zombie%20Leak%20Detection-rose)
-![Perfetto Ground Truth](https://img.shields.io/badge/Perfetto-Microsecond%20Trace%20Aligned-emerald)
+A logical memory profiler and state inspector for PagedAttention inference engines (vLLM, SGLang).
+
+Standard GPU profilers (`nvidia-smi`, `nsys`, `torch.cuda.memory_allocated()`) observe physical VRAM allocations at the PyTorch tensor level. They cannot inspect the internal logical block tables, virtual token indices, reference counts, or prefix caching radix trees maintained inside an inference engine's memory manager.
+
+When an ungraceful client disconnect occurs, or when fragmented decode sequences hold tail blocks without allocation activity, physical memory stays allocated. `kvcachescope` hooks directly into the engine's `BlockSpaceManager` to provide real-time visibility into the logical-to-physical block mapping, flag state divergence between HTTP sessions and backend GPU allocations, and detect unreleased blocks in CI pipelines.
 
 ---
 
-## 🎯 The Problem: Operational Opacity in Virtualized Memory
-
-PagedAttention virtualizes the Key-Value (KV) cache into fixed-size physical blocks (typically 16–32 tokens), eliminating contiguous memory allocation limits and cutting physical external fragmentation below 4%.
-
-However, standard GPU profilers (`nsys`, `pmap`, `Heaptrack`, `nvidia-smi`) only observe **flat, physical VRAM allocations**. They are blind to:
-1. **Hostage & Zombie Block Leaks**: Ungraceful client disconnects (`asyncio.CancelledError`) where the frontend drops the connection, but the backend execution worker continues generating tokens silently at ~7.8 tok/s.
-2. **Internal Slack Space Saturation**: High concurrency of short 1-token responses leaving up to 93.7% slack waste within allocated blocks.
-3. **Prefix Caching RefCount Cycles**: Complex Python wrapper object reference cycles preventing garbage collection from calling C++ block destructors.
-4. **99.1% VRAM Scheduler Deadlocks**: Schedulers hanging at extreme memory watermarks under continuous batching load.
+## Architecture
 
 ```
-+-----------------------------------------------------------------------------------------+
-|                                    KVCacheScope                                         |
-|                                                                                         |
-|  +---------------------------+     10Hz WS Stream     +------------------------------+  |
-|  |   vLLM BlockSpaceManager  | =====================> |  2D GPU Block Matrix (UI)    |  |
-|  | - allocate() / free()     |                        |  - Live Physical Block IDs   |  |
-|  | - append_slots()          |                        |  - Radix Shared Refcounts    |  |
-|  | - block_tables dict       |                        |  - Hostage / Leaked Blocks   |  |
-|  +---------------------------+                        +------------------------------+  |
-|               |                                                      |                  |
-|               v                                                      v                  |
-|  +---------------------------+                        +------------------------------+  |
-|  | Headless CI/CD Runner     |                        | Hostage Zombie Hunter        |  |
-|  | --max-zombie-tolerance 0  |                        | - StateDivergenceDetector    |  |
-|  | (Exit 0=Pass / 1=Fail)    |                        | - 1-Click Pool Remediation   |  |
-|  +---------------------------+                        +------------------------------+  |
-+-----------------------------------------------------------------------------------------+
+                                      +---------------------------------------------+
+                                      |            kvcachescope Web UI              |
+                                      |  - 2D Physical Block Grid Matrix            |
+                                      |  - Virtual Token -> Block Table Visualizer  |
+                                      |  - Hostage / Leaked Sequence Inspector      |
+                                      +----------------------+----------------------+
+                                                             ^
+                                              10Hz WebSocket | /ws/stream
+                                                             v
++------------------------------------+        +-------------------------------------+
+|        Target LLM Engine           |        |         kvcachescope Server         |
+|  (vLLM / SGLang / Disaggregated)   |        |  (FastAPI + Detached Observer Loop) |
+|                                    |        +-------------------------------------+
+|  +------------------------------+  |                           |
+|  |     BlockSpaceManager        |  |                           |
+|  |  - allocate()                |  |                           |
+|  |  - free()                    |  | Telemetry Hook            | State Divergence
+|  |  - append_slots()            |==+==========================>| Checks
+|  |  - block_tables              |  |                           |
+|  +------------------------------+  |                           v
+|                                    |        +-------------------------------------+
+|  +------------------------------+  |        |      CI / Regression Runner         |
+|  |   PrefixCachingAllocator     |  |        |  - Zero-zombie tolerance assertions |
+|  |  - radix_tree refcounts      |  |        |  - Perfetto trace export (.json)    |
+|  +------------------------------+  |        +-------------------------------------+
++------------------------------------+
 ```
 
 ---
 
-## 🚀 Key Innovations & Features
+## Quickstart
 
-### 1. Live Non-Invasive vLLM `BlockSpaceManager` Hook
-- Hooks directly into `allocate()`, `free()`, and `append_slots()`.
-- Isolated observer daemon thread with lock-free atomic snapshot swapping (immune to engine scheduler stalls).
-- One-line Python integration:
+### 1. Standalone Dashboard / Simulator
+
+Run the profiler with the built-in PagedAttention simulation engine:
+
+```bash
+git clone https://github.com/brian-mwirigi/kvcachescope.git
+cd kvcachescope
+pip install -r requirements.txt
+python run.py
+```
+
+Dashboard starts at `http://localhost:8000`.
+
+### 2. Live vLLM Engine Hook
+
+Attach `kvcachescope` to an active vLLM engine instance:
+
 ```python
+from vllm import LLMEngine, EngineArgs
 from backend.vllm_hook import attach_vllm_hook
 
-# Instruments any running vLLM engine instance
-hook = attach_vllm_hook(llm_engine, port=8000)
+# Initialize standard vLLM engine
+engine_args = EngineArgs(model="facebook/opt-125m", enable_prefix_caching=True)
+engine = LLMEngine.from_engine_args(engine_args)
+
+# Attach observer hook (runs in isolated daemon thread)
+hook = attach_vllm_hook(engine, port=8000)
 ```
 
-### 2. State Divergence Detector (Zombie Leak Hunter)
-- Cross-correlates frontend HTTP client stream state against physical GPU block tables.
-- Flags ungraceful client drops and models estimated hourly VRAM waste ($/hr).
-- 1-click remediation to purge hostage sequences or defragment nodes.
+The hook instruments `BlockSpaceManager.allocate()`, `free()`, `append_slots()`, and samples `block_tables` at 10Hz without modifying model forward passes.
 
-### 3. Headless CI/CD Regression Defense
-- Zero-tolerance regression testing for continuous integration pipelines:
+---
+
+## Failure Modes Observed
+
+### 1. Asynchronous Client Disconnect Leak (`CancelledError` Divergence)
+When an HTTP client connection terminates mid-generation (proxy timeout, client abort), ASGI servers raise `asyncio.CancelledError`. In some engine configurations, the frontend marks the request terminated but fails to dispatch `abort_request()` across the IPC boundary to the GPU worker.
+
+The worker continues autoregressive token decoding (often at ~7-8 tokens/sec) until reaching `max_tokens`. `StateDivergenceDetector` cross-correlates frontend session registries with backend physical block tables to flag active token generation on closed sessions.
+
+### 2. Scheduler Capacity Deadlock (99.1% VRAM Watermark)
+When `gpu_memory_utilization` is configured near physical capacity (>=0.99) alongside high `max_num_seqs`, preemption edge cases in the scheduler can cause the main generation loop to deadlock while VRAM remains 99% full.
+
+`kvcachescope`'s observer executes on a decoupled daemon thread with lock-free atomic snapshot swaps, allowing telemetry streaming and sequence starvation reporting to continue even if the engine scheduler hangs.
+
+### 3. Prefix Cache Refcount Cycles
+In multimodal or long system prompt workloads, Python-level cyclical references around shared prefix nodes can prevent garbage collection from destroying wrapper objects upon request termination. C++ block destructors are never invoked, leaving physical blocks with `ref_count > 0` indefinitely.
+
+### 4. Tail-Block Slack Space
+PagedAttention allocates fixed-size physical blocks (default: 16 tokens). In high-concurrency short-output workloads (e.g., 1-token tool calls or routing classifications), allocating a full 16-token block for 1 token leaves 15 unused slots (93.7% internal slack waste).
+
+---
+
+## Headless CI/CD Testing
+
+Run automated memory leak assertions in GitHub Actions or test suites:
+
 ```bash
 python run.py --ci-mode --duration-sec 30 --max-zombie-tolerance 0 --max-frag-tolerance 40.0 --report-json ci_report.json
 ```
-- Exits with return code `0` on clean runs or `1` on memory leak detection.
 
-### 4. High-Throughput Redline Benchmark Harness
-- Multi-threaded load generator bypassing the Python asyncio 50-client saturation crash.
-- Eliminates disk I/O bottlenecks via `--disable-log-requests`, sustaining **44,000+ tokens/sec**.
-
-### 5. Perfetto Microsecond Trace Synchronization
-- Exports Chrome Trace JSON (`perfetto_redline_trace.json`) with microsecond timestamps.
-- Chronologically aligned with native `torch.profiler` (`VLLM_TORCH_PROFILER_DIR`) in [ui.perfetto.dev](https://ui.perfetto.dev/).
+- Returns exit code `0` if all assertions pass.
+- Returns exit code `1` if unreleased hostage blocks or fragmentation thresholds are breached.
+- Writes structured results to `ci_report.json`.
 
 ---
 
-## 📦 Quick Start
+## Stress Testing Suite
 
-### 1. Run Interactive Web Dashboard
+Execute the 5-vector failure matrix:
+
 ```bash
-python run.py
+python backend/stress_test_suite.py --vector all
 ```
-Open `http://localhost:8000` to inspect live physical GPU memory pools, virtual-to-physical block tables, and disaggregated routing topology.
 
-### 2. Run Google Colab Notebook
-Open [`notebooks/KVCacheScope_Live_vLLM_Colab.ipynb`](notebooks/KVCacheScope_Live_vLLM_Colab.ipynb) with `nest_asyncio` and native Colab window port forwarding:
+Individual vectors:
+- `python backend/stress_test_suite.py --vector abort_divergence` (Client disconnect vs backend worker)
+- `python backend/stress_test_suite.py --vector deadlock_99` (99.1% VRAM watermark lockup)
+- `python backend/stress_test_suite.py --vector prefix_cycle` (Multimodal prefix refcount leaks)
+- `python backend/stress_test_suite.py --vector speculative_thrash` (Dual-model rollback micro-allocations)
+- `python backend/stress_test_suite.py --vector hw_abstraction` (CUDA, ROCm, OpenVINO, QAic)
+
+---
+
+## High-Concurrency Benchmark Harness
+
+Run multi-threaded client load to test GPU saturation without hitting the Python asyncio client bottleneck (>50 streams):
+
+```bash
+python benchmarks/benchmark_redline.py --concurrency 50 --duration 10 --disable-log-requests
+```
+
+Exports a microsecond-precision trace file (`perfetto_redline_trace.json`) that can be loaded directly into [ui.perfetto.dev](https://ui.perfetto.dev/) for side-by-side alignment with `torch.profiler`.
+
+---
+
+## Google Colab
+
+A notebook demonstrating live vLLM profiling with `nest_asyncio` and Colab's native window port forwarding is in [`notebooks/KVCacheScope_Live_vLLM_Colab.ipynb`](notebooks/KVCacheScope_Live_vLLM_Colab.ipynb).
+
 ```python
 import nest_asyncio
 nest_asyncio.apply()
@@ -97,24 +153,7 @@ output.serve_kernel_port_as_window(8000)
 
 ---
 
-## 🧪 5-Step Redline Stress Matrix Validation
-
-Execute the full stress matrix covering the 5 canonical inference failure modes:
-```bash
-python backend/stress_test_suite.py --vector all
-```
-
-| Vector | Failure Mode Tested | Assertion | Result |
-|---|---|---|---|
-| **1. Zombie Leak** | Client drop (`CancelledError`) not sent to GPU worker | `divergences_detected == canceled_requests` | `[PASS]` |
-| **2. 99.1% Deadlock** | Scheduler stall under extreme VRAM saturation | Observer thread survives at 10Hz | `[PASS]` |
-| **3. Prefix Cycle** | Multimodal Python GC reference cycle leak | Tracks shared block refcount decrements | `[PASS]` |
-| **4. Speculative Thrash** | Dual-model $K=5$ draft rollbacks | Microsecond transient rollback capture | `[PASS]` |
-| **5. Hardware Abstraction** | CUDA, ROCm (CK), OpenVINO (RAM), QAic (AOT) | Platform abstraction mapping | `[PASS]` |
-
----
-
-## 🛠️ CLI Reference
+## CLI Options
 
 ```
 usage: run.py [-h] [--ci-mode] [--duration-sec DURATION_SEC]
@@ -128,24 +167,6 @@ usage: run.py [-h] [--ci-mode] [--duration-sec DURATION_SEC]
 
 ---
 
-## 📊 Benchmark Summary
+## License
 
-```
-============================================================================
-  KVCacheScope High-Concurrency Redline Benchmark Harness
-============================================================================
-  Concurrency Level:      50 concurrent streams (Multi-threaded)
-  Total Duration:         5.18 s
-  Completed Requests:     3,841 requests
-  Aborted Zombies:        426 sequences detected & isolated
-  Total Tokens Generated: 228,732 tokens
-  System Throughput:      44,169.3 tokens/sec
-  Hostage Blocks Flagged: 1,005 blocks
-  Perfetto Trace File:    perfetto_redline_trace.json
-============================================================================
-```
-
----
-
-## 📄 License
-Apache-2.0. Built for the open-source high-throughput LLM inference ecosystem.
+Apache-2.0
