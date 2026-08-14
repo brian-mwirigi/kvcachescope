@@ -235,6 +235,38 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
                 <span className="text-purple-300 font-mono">{activeModalBlock.prefix_hash || 'None (Tail Block)'}</span>
               </div>
 
+              {/* 16-Token Physical Slot Allocation Visualizer */}
+              <div className="pt-2">
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className="text-slate-400">Physical Token Slots (16-token Block):</span>
+                  <span className="text-[10px] text-slate-400">
+                    {activeModalBlock.token_count} active / {activeModalBlock.slack_tokens} slack
+                  </span>
+                </div>
+                <div className="grid grid-cols-8 gap-1 p-2 rounded-lg bg-dark-950 border border-slate-800">
+                  {Array.from({ length: activeModalBlock.capacity || 16 }).map((_, idx) => {
+                    const isFilled = idx < activeModalBlock.token_count;
+                    return (
+                      <div
+                        key={idx}
+                        className={`h-5 rounded flex items-center justify-center text-[9px] font-mono border ${
+                          isFilled
+                            ? activeModalBlock.state === 'HOSTAGE_ZOMBIE'
+                              ? 'bg-rose-600/60 border-rose-400 text-rose-100'
+                              : activeModalBlock.state === 'PREFIX_SHARED'
+                              ? 'bg-emerald-600/60 border-emerald-400 text-emerald-100'
+                              : 'bg-cyan-600/60 border-cyan-400 text-cyan-100'
+                            : 'bg-slate-900 border-slate-800/80 text-slate-600'
+                        }`}
+                        title={`Slot #${idx}: ${isFilled ? 'Allocated Token' : 'Unused Slack Space'}`}
+                      >
+                        {idx}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Owning Sequences */}
               <div className="pt-2">
                 <span className="text-slate-400 block mb-1.5">Owning Sequences:</span>
@@ -247,9 +279,9 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
                           onSelectSeqId(sid);
                           setActiveModalBlock(null);
                         }}
-                        className="px-2 py-1 rounded bg-cyan-950/80 border border-cyan-800/80 text-cyan-300 text-[11px] hover:bg-cyan-900"
+                        className="px-2 py-1 rounded bg-cyan-950/80 border border-cyan-800/80 text-cyan-300 text-[11px] hover:bg-cyan-900 hover:border-cyan-500 transition-colors"
                       >
-                        {sid}
+                        {sid} &rarr; Focus in Table
                       </button>
                     ))}
                   </div>
@@ -262,17 +294,18 @@ export const BlockPoolHeatmap: React.FC<BlockPoolHeatmapProps> = ({
               {activeModalBlock.tokens_preview && (
                 <div className="pt-2">
                   <span className="text-slate-400 block mb-1">Stored Tokens Preview:</span>
-                  <div className="p-2.5 rounded bg-slate-950 border border-slate-800 text-slate-300 text-[11px]">
+                  <div className="p-2.5 rounded bg-slate-950 border border-slate-800 text-slate-300 text-[11px] font-mono select-all">
                     "{activeModalBlock.tokens_preview}"
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-between items-center">
+              <span className="text-[10px] text-slate-500 font-mono">Offset: 0x{((activeModalBlock.physical_id || activeModalBlock.block_id) * 320).toString(16).toUpperCase()}</span>
               <button
                 onClick={() => setActiveModalBlock(null)}
-                className="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs font-mono"
+                className="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs font-mono transition-colors"
               >
                 Close Inspector
               </button>
