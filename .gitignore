@@ -37,3 +37,12 @@ Thumbs.db
 
 # Reports / Temporary traces
 *.log
+
+# Generated output files (re-created on each run)
+stress_matrix_report.json
+perfetto_stress_matrix_trace.json
+perfetto_redline_trace.json
+ci_report.json
+test_ci_report.json
+__test_ci_report.json
+__test_perfetto.json
