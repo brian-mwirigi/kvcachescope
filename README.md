@@ -76,6 +76,44 @@ The hook instruments `BlockSpaceManager.allocate()`, `free()`, `append_slots()`,
 
 ---
 
+## Workflows & Use Cases
+
+### 1. Diagnosing Production VRAM Leaks (Zero Pod Restarts)
+When a continuous batching cluster hits 98% VRAM utilization and stalls, `nvidia-smi` reports all memory as allocated by Python. Attach `kvcachescope` to the running engine:
+```python
+from backend.vllm_hook import attach_vllm_hook
+hook = attach_vllm_hook(llm_engine, port=8000)
+```
+Open `http://localhost:8000` to inspect the **Hostage Block & Zombie Hunter**. If an ungraceful client disconnect left physical blocks locked, identify the exact sequence ID and call the reclaim endpoint (`POST /api/diagnostics/reclaim`) to restore the free queue without restarting the model pod.
+
+### 2. Automated CI/CD Regression Defense
+Add leak regression assertions to your GitHub Actions test suite:
+```yaml
+- name: KV Cache Memory Leak Assertion
+  run: |
+    python run.py --ci-mode --duration-sec 60 --max-zombie-tolerance 0 --max-frag-tolerance 35.0 --report-json ci_report.json
+```
+If a PR introduces reference count leaks or orphaned block allocations, the job automatically fails with exit code `1` and exports detailed diagnostics.
+
+### 3. Tuning Block Sizes & Measuring Tail Slack Space
+When serving short-output agent loops (1–3 output tokens), large physical block sizes cause high internal slack waste. Benchmark your target traffic:
+```bash
+python benchmarks/benchmark_redline.py --concurrency 50 --duration 30
+```
+Inspect the **Internal Slack Waste %** metric to evaluate whether switching from 32-token to 16-token or 8-token block sizes recovers VRAM capacity for higher batch concurrency.
+
+### 4. Ground-Truth Hardware Alignment with Perfetto
+Export microsecond-precision block lifecycle traces:
+```bash
+python backend/stress_test_suite.py --vector all --export-perfetto trace.json
+```
+Load `trace.json` into [ui.perfetto.dev](https://ui.perfetto.dev/) alongside native `torch.profiler` CUDA traces (`VLLM_TORCH_PROFILER_DIR`) to verify chronological alignment between PagedAttention block deallocations and physical CUDA memory frees.
+
+### 5. Interactive Cloud GPU Testing in Google Colab
+Launch on cloud GPUs with zero network tunnels using [`notebooks/KVCacheScope_Live_vLLM_Colab.ipynb`](notebooks/KVCacheScope_Live_vLLM_Colab.ipynb). The notebook applies `nest_asyncio` and exposes the UI in a native window via `output.serve_kernel_port_as_window(8000)`.
+
+---
+
 ## Failure Modes Observed
 
 ### 1. Asynchronous Client Disconnect Leak (`CancelledError` Divergence)
