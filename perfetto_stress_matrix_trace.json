@@ -1,0 +1,849 @@
+{
+  "traceEvents": [
+    {
+      "name": "process_name",
+      "ph": "M",
+      "pid": 1,
+      "args": {
+        "name": "vLLM-PagedAttention-Engine"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "name": "KVCache-BlockAllocator"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 1,
+      "tid": 2,
+      "args": {
+        "name": "Divergence-LeakDetector"
+      }
+    },
+    {
+      "name": "ZOMBIE_LEAK_ALERT_seq_6929",
+      "cat": "divergence,error",
+      "ph": "I",
+      "ts": 1786742864579196,
+      "pid": 1,
+      "tid": 2,
+      "s": "p",
+      "args": {
+        "request_id": "seq_6929",
+        "zombie_duration_sec": 0.0,
+        "blocks_held": 5,
+        "root_cause": "Async CancelledError Backend Drop"
+      }
+    },
+    {
+      "name": "ZOMBIE_LEAK_ALERT_seq_1939",
+      "cat": "divergence,error",
+      "ph": "I",
+      "ts": 1786742864579196,
+      "pid": 1,
+      "tid": 2,
+      "s": "p",
+      "args": {
+        "request_id": "seq_1939",
+        "zombie_duration_sec": 0.0,
+        "blocks_held": 5,
+        "root_cause": "Async CancelledError Backend Drop"
+      }
+    },
+    {
+      "name": "ZOMBIE_LEAK_ALERT_seq_2732",
+      "cat": "divergence,error",
+      "ph": "I",
+      "ts": 1786742864579196,
+      "pid": 1,
+      "tid": 2,
+      "s": "p",
+      "args": {
+        "request_id": "seq_2732",
+        "zombie_duration_sec": 0.0,
+        "blocks_held": 5,
+        "root_cause": "Async CancelledError Backend Drop"
+      }
+    },
+    {
+      "name": "ZOMBIE_LEAK_ALERT_seq_1478",
+      "cat": "divergence,error",
+      "ph": "I",
+      "ts": 1786742864579196,
+      "pid": 1,
+      "tid": 2,
+      "s": "p",
+      "args": {
+        "request_id": "seq_1478",
+        "zombie_duration_sec": 0.0,
+        "blocks_held": 5,
+        "root_cause": "Async CancelledError Backend Drop"
+      }
+    },
+    {
+      "name": "Allocate_Block_0",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 0,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_0",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 0,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_1",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 1,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_1",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 1,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_2",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 2,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_2",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 2,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_3",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 3,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_3",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 3,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_4",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 4,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_4",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 4,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_5",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 5,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Allocate_Block_6",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 6,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_6",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 6,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_7",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 7,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_7",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 7,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_8",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 8,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_8",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 8,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_9",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 9,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_9",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 9,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_10",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 10,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_10",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 10,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_11",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 11,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_11",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 11,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_12",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 12,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_12",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 12,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_13",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 13,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_13",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 13,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_14",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 14,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Allocate_Block_15",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 15,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_15",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 15,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_16",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 16,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_16",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 16,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_17",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 17,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_17",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 17,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_18",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 18,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_18",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 18,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_19",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 19,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Allocate_Block_20",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 20,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_20",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 20,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_21",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 21,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_21",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 21,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_22",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 22,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_22",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 22,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_23",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 23,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_23",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 23,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_24",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 24,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_24",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 24,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_25",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 25,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_25",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 25,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_26",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 26,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_26",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 26,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_27",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 27,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_27",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 27,
+        "sequence_id": "spec_draft_worker"
+      }
+    },
+    {
+      "name": "Allocate_Block_28",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 28,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Allocate_Block_29",
+      "cat": "kv_cache,allocation",
+      "ph": "X",
+      "ts": 1786742864589195,
+      "dur": 25,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 29,
+        "sequence_id": "spec_draft_worker",
+        "token_count": 5
+      }
+    },
+    {
+      "name": "Free_Block_29",
+      "cat": "kv_cache,deallocation",
+      "ph": "X",
+      "ts": 1786742864589210,
+      "dur": 15,
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "block_id": 29,
+        "sequence_id": "spec_draft_worker"
+      }
+    }
+  ],
+  "displayTimeUnit": "ms"
+}
